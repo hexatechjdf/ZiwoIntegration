@@ -1,0 +1,53 @@
+<script type="text/javascript">
+	var _url = "{{ url('";
+	var _date_format = "{{ get_option('date_format','Y-m-d";
+	var _backend_direction = "{{ get_option('backend_direction','ltr";
+
+	var $lang_alert_title = "Are you sure?";
+	var $lang_alert_message = "Once deleted, you will not be able to recover this information !";
+	var $lang_confirm_button_text = "Yes, delete it!";
+	var $lang_cancel_button_text = "Cancel";
+    var $lang_no_data_found = "No Data Found";
+	var $lang_showing = "Showing";
+	var $lang_to = "to";
+	var $lang_of = "of";
+	var $lang_entries = "Entries";
+	var $lang_showing_0_to_0_of_0_entries = "Showing 0 To 0 Of 0 Entries";
+	var $lang_show = "Show";
+	var $lang_loading = "Loading...";
+	var $lang_processing = "Processing...";
+	var $lang_search = "Search";
+	var $lang_no_matching_records_found = "No matching records found";
+	var $lang_first = "First";
+	var $lang_last = "Last";
+	var $lang_next = "Next";
+	var $lang_previous = "Previous";
+	var $lang_copy = "Copy";
+	var $lang_excel = "Excel";
+	var $lang_pdf = "PDF";
+	var $lang_print = "Print";
+	var $lang_income = "Income";
+	var $lang_expense = "Expense";
+	var $lang_income_vs_expense = "Income vs Expense";
+	var $lang_source = "Source";
+	var $lang_created = "Created";
+	var $lang_tax_method = "TAX Method";
+	var $lang_inclusive = "INCLUSIVE";
+	var $lang_exclusive = "EXCLUSIVE";
+	var $lang_unit_price = "Unit Price";
+	var $lang_quantity = "Quantity";
+	var $lang_discount = "Discount";
+	var $lang_tax = "Tax";
+	var $lang_save = "Save";
+	var $lang_no_tax = "No Tax";
+	var $lang_update_product = "Update Product";
+	var $lang_none = "NONE";
+	var $lang_copied_invoice_link = "Copied Invoice Link";
+	var $lang_copied_quotation_link = "Copied Quotation Link";
+	var $lang_no_user_assigned = "No User Assigned";
+	var $lang_select_milestone = "Select Milestone";
+	var $lang_no_data_available = "No Data Available";
+	var $lang_select_tax = "Select TAX";
+
+</script>
+</script>
