@@ -35,3 +35,4 @@ Route::any('/ziwo-webhook', [ZiwoWebhookController::class, 'callback'])->without
 Route::any('/crm-webhook', [CrmWebhookController::class, 'callback'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 Route::post('/locations/toggle-integration/{id}', [LocationController::class, 'toggleIntegration']);
 Route::post('/submit-call-response', [ZiwoDetailController::class, 'submitCallResponse'])->name('get_token');
+Route::post('/delete-call-logs', [ZiwoDetailController::class, 'deleteCallLogs'])->name('get_token');

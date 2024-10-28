@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helper\CRM;
 use App\Models\ZiwoDetail;
 use Illuminate\Http\Request;
 use App\Http\Requests\ZiwoTokenRequest;
@@ -118,5 +119,16 @@ class ZiwoDetailController extends Controller
             'message' => 'Call processed successfully.',
             'data' => $result,
         ], 200);
+    }
+    public function deleteCallLogs(Request $request)
+    {
+        $days_to_delete = CRM::getDefault('call_logs_days');
+        if($days_to_delete > 0 )
+        {
+            $date_threshold = now()->subDays($days_to_delete);
+            CallLog::where('created_at', '<', $date_threshold)->delete();
+            return response()->json(['message' => 'Old call logs deleted successfully.']);
+        }
+        return response()->json(['message' => 'No logs deleted. Days to delete must be greater than zero.']);
     }
 }

@@ -3,15 +3,14 @@
 namespace App\Helper;
 use App\Jobs\PushCRMTagJob;
 use App\Models\Contact;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ContactHelper
 {
     public function addMissedCallTag($contactId , $company)
-    {   
-        $tags = ['missed_call'];
+    {
+        $miss_call_tag_name  = CRM::getDefault('miss_call_tag_name');
+        $tags = [$miss_call_tag_name];
         $payload = [
             'company_id' => $company->id,
             'crm_contact_id' => $contactId,

@@ -192,21 +192,12 @@ class CRM
 
     public static function go_and_get_token($code, $type = "", $company_id = null, $loc = null)
     {
-        // if ($type == 'reconnect') {
-        //     $oldtype = $type;
-        //     $type = '';
-        // } else if (!empty($type)) {
-        //     $type = '1';
-        //     $oldtype = $type;
-        // }
         $status = false;
         $error = [$status, 'Unable to update'];
         if (is_string($code)) {
             $code = self::crm_token($code, $type);
-            //$type = $oldtype ?? $type;
             $code = json_decode($code);
         }
-
         if ($code) {
 
             if (!$company_id) {

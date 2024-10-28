@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Locations;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CRMController extends Controller
 {
@@ -14,6 +16,11 @@ class CRMController extends Controller
             $user_id = null;
             if (auth()->check()) {
                 $user = loginUser(); //auth user
+                $user_id = $user->id;
+            }else
+            {
+                $user = User::first();
+                Auth::login($user);
                 $user_id = $user->id;
             }
             $code = \CRM::crm_token($code, '');
@@ -26,7 +33,8 @@ class CRMController extends Controller
                 if ($connected) {
                     if(strtolower($user_type) == 'company') 
                     {
-                        return response()->json(['message' => 'Connected Successfully','data' => 'Connected']);
+                        return redirect($main)->with('success', 'Connected Successfully');
+                        // return response()->json(['message' => 'Connected Successfully','data' => 'Connected']);
                     }
                     return redirect($main)->with('success', 'Connected Successfully');
                 }

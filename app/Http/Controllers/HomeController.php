@@ -23,23 +23,25 @@ class HomeController extends Controller
         $user = Auth::user();
         $contactId = $request->contactId;
         $locationId = $request->locationId;
-        if($contactId && $locationId)
-        {
+        if ($contactId && $locationId) {
             $body = [
                 "body" =>  $request->body
             ];
-            $resp = CRM::crmV2($user->id, `contacts/`.$contactId.`/notes`,'post',json_encode($body),[],true,$locationId);
+            $resp = CRM::crmV2($user->id, `contacts/` . $contactId . `/notes`, 'post', json_encode($body), [], true, $locationId);
             if ($resp && property_exists($resp, 'success')) {
                 return response()->json(['status' => true], 400);
             }
-            return response()->json(['status' =>false], 200);
+            return response()->json(['status' => false], 200);
         }
     }
     public function location_info(Request $request)
     {
-        $user = Auth::user();
-        $locations = User::where('role',User::ROLE_LOCATION)->whereNotNull('location_id')->pluck(['location_id','integration_status']);
-        return response()->json(['status' => true, 'message' => 'location information.','data' => $locations], 200);
+        $locations = User::where('role', User::ROLE_LOCATION)
+            ->whereNotNull('location_id')
+            ->select('location_id', 'integration_status')
+            ->get()
+            ->toArray();
+        return response()->json(['status' => true, 'message' => 'location information.', 'data' => $locations], 200);
     }
     public function addLocation(Request $request)
     {
@@ -49,10 +51,11 @@ class HomeController extends Controller
         if ($resp && property_exists($resp, 'locations')) {
             $locations = $resp->locations;
         }
-        foreach($locations  as $loc)
-        {
+        foreach ($locations  as $loc) {
             $location = User::where('location_id', $loc->id)->first();
-            if(!$location){ $location = new User();}
+            if (!$location) {
+                $location = new User();
+            }
             $location->name = $loc->name;
             $location->email = $loc->email;
             $location->location_id = $loc->id;
