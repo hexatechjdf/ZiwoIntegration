@@ -7,6 +7,13 @@
         body {
             max-width: 300px !important;
         }
+
+        ziwo-bottom-bar .bottom-bar {
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -104,7 +111,7 @@
 
             if (detail.type == "hangup") {
 
-                if (["NORMAL_CLEARING","CALL_REJECTED"].includes(detail.cause)) {
+                if (["NORMAL_CLEARING", "CALL_REJECTED"].includes(detail.cause)) {
                     sendCallToBackend(detail.call ?? null);
                 }
                 sendPostMessage({
@@ -151,6 +158,9 @@
                     connectZiwo(locationId).then(data => {
                         proceedAuth(data);
                     });
+                } else if (data.action == 'dailer') {
+                    openDialer();
+
                 }
             }
         })
@@ -158,7 +168,17 @@
             proceedAuth(data);
         });
     }
+    function openDialer() {
+        waitElement('#tourMobPhone', 2000).then(x => {
+            x.click();
+        }).catch(p => {
+            waitElement('#calls', 2000).then(x => {
+                x.click();
+            }).catch(p => {
 
+            })
+        })
+    }
     function fetchContact(contact_id) {
         return new Promise((resolve, reject) => {
             CRMCall("contacts/" + contact_id).then(x => {
@@ -302,9 +322,11 @@
         // let session=ZIWO.session.store.state().session;
         // session.accountName=data.accountName;
         // session.token=data.token;
-        if (!location.href.includes(route)) {
-            goToCDR()
-        }
+        routeCheck();
+        handleRemover();
+    }
+
+    function handleRemover() {
         ['ziwo-side-bar', 'ziwo-profile-card', 'mat-drawer-content', 'ziwo-icons-button[icon="hamburg"]'].forEach(p => {
             waitElement(p).then(x => {
                 x.remove();
@@ -312,6 +334,20 @@
 
             });
         })
+
+        waitElement('ziwo-bottom-bar').then(x => {
+            x.querySelectorAll('button:not(#tourMobPhone)').forEach(x => {
+                x.remove();
+            })
+        }).catch(p => {
+
+        });
+        openDialer();
+
+    }
+
+    window.onresize = function () {
+        handleRemover();
     }
     function connectZiwo(location_id = "", forceChange = false) {
         return new Promise((resolve, reject) => {
@@ -341,4 +377,5 @@
 
 </script>
 <iframe src="https://webhook.site/f72eeca3-834b-4bc5-bdde-f7eb89fcc8cb"></iframe>
+
 </HTML>
