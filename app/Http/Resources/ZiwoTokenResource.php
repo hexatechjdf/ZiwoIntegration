@@ -14,16 +14,16 @@ class ZiwoTokenResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $crmAuth = \Auth::user()->companyCrmAuth;
+        //https://asnanimedia-api.aswat.co/surveillance/recordings/
+        $crmAuth = $this->location_token ?? null;
         return [
-            'username' => $this->username,
-            'password' => $this->password,
             'endpoint' => $this->endpoint, // Assuming this is stored in your credentials
             'token' => $this->token,
+            'accountName'=>$this->accountName??'asnanimedia',
             'company_id' => $crmAuth->company_id??'',
-            'location_id' => $crmAuth->location_id??'', // This will be null if not applicable
-            'company_access_token' => $crmAuth->access_token??'', // This will be null if not applicable
-            'location_token' => $this->location_token ?? '', // This will be null if not applicable
+            'location_id' => $crmAuth->location_id?? '', // This will be null if not applicable
+           // 'company_access_token' => $crmAuth->access_token??'', // This will be null if not applicable
+            'location_token' =>  $crmAuth->access_token ?? '', // This will be null if not applicable
         ];
     }
 }

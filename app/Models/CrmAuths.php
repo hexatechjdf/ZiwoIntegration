@@ -11,7 +11,7 @@ class CrmAuths extends Model
     protected $table = 'crm_tokens';
     use HasFactory;
     protected $guarded =[];
-    public function urefresh(): bool
+     public function urefresh(): bool
     {
         $is_refresh = false;
         try {

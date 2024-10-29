@@ -23,6 +23,12 @@ class CRMController extends Controller
                 Auth::login($user);
                 $user_id = $user->id;
             }
+            else
+            {
+                $user = User::first();
+                Auth::login($user);
+                $user_id = $user->id;
+            }
             $code = \CRM::crm_token($code, '');
             $code = json_decode($code);
             $user_type = $code->userType ?? 'company';
@@ -34,7 +40,7 @@ class CRMController extends Controller
                     if(strtolower($user_type) == 'company') 
                     {
                         return redirect($main)->with('success', 'Connected Successfully');
-                        // return response()->json(['message' => 'Connected Successfully','data' => 'Connected']);
+                        return response()->json(['message' => 'Connected Successfully','data' => 'Connected']);
                     }
                     return redirect($main)->with('success', 'Connected Successfully');
                 }

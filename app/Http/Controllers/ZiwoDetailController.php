@@ -92,7 +92,8 @@ class ZiwoDetailController extends Controller
 
     public function getToken(ZiwoTokenRequest $request)
     {
-        $company = Auth::user();
+        $company = User::first();
+       
         $locationId = $request->get('location_id');
 
         // Handle location-based user creation if locationId exists
@@ -120,7 +121,7 @@ class ZiwoDetailController extends Controller
             'data' => $result,
         ], 200);
     }
-    public function deleteCallLogs(Request $request)
+     public function deleteCallLogs(Request $request)
     {
         $days_to_delete = CRM::getDefault('call_logs_days');
         if($days_to_delete > 0 )

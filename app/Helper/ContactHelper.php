@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class ContactHelper
 {
     public function addMissedCallTag($contactId , $company)
-    {
+    {   
         $miss_call_tag_name  = CRM::getDefault('miss_call_tag_name');
         $tags = [$miss_call_tag_name];
         $payload = [

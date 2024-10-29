@@ -72,10 +72,8 @@
                         <div class="form-group">
                             <label class="control-label">CRM OAuth Company Connection</label>
                             @if ($user && $user->companyCrmAuth?->access_token == '')
-                             <a href="https://app.gohighlevel.com/integration/{{ env('MARKETPLACE_APPID') }}"
+                                 <a href="https://app.gohighlevel.com/integration/{{ env('MARKETPLACE_APPID') }}"
                                     class="btn btn-primary">Connect to CRM Company</a>
-                                {{-- <a href="{{ route('oauthcrmconnection') }}/agency"
-                                    class="btn ajax-modal btn-primary">Connect to CRM Company</a> --}}
                             @else
                                 <br />
                                 Already Connected to Company -
