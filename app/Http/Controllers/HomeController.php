@@ -16,7 +16,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        
     }
     public function send_notes(Request $request)
     {
@@ -38,7 +38,11 @@ class HomeController extends Controller
     public function location_info(Request $request)
     {
         $user = Auth::user();
-        $locations = User::where('role',User::ROLE_LOCATION)->whereNotNull('location_id')->pluck(['location_id','integration_status']);
+        $locations = User::where('role', User::ROLE_LOCATION)
+    ->whereNotNull('location_id')
+    ->select('location_id', 'integration_status')
+    ->get()
+    ->toArray();
         return response()->json(['status' => true, 'message' => 'location information.','data' => $locations], 200);
     }
     public function addLocation(Request $request)

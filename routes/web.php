@@ -51,18 +51,21 @@ Route::prefix('authorization')->name('crm.')->group(function () {
     });
     Route::get('/crm/oauth/callback', [CRMController::class, 'crmCallback'])->name('oauth_callback');
 });
+
+Route::group(['as' => 'ziwo.', 'prefix' => 'ziwo'], function () {
+            //Route::get('/', [ZiwoDetailController::class, 'index'])->name('index');
+            Route::post('/store', [ZiwoDetailController::class, 'store'])->name('save');
+            Route::post('/get-token', [ZiwoDetailController::class, 'getToken'])->name('get_token');
+            Route::post('/submit-call-response', [ZiwoDetailController::class, 'submitCallResponse'])->name('get_token');
+});
+
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
     Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
         Route::any('dashboard', [AdminController::class, 'index'])->name('dashboard');
        
 
-        Route::group(['as' => 'ziwo.', 'prefix' => 'ziwo'], function () {
-            Route::get('/', [ZiwoDetailController::class, 'index'])->name('index');
-            Route::post('/store', [ZiwoDetailController::class, 'store'])->name('save');
-            Route::get('/get-token', [ZiwoDetailController::class, 'getToken'])->name('get_token');
-            Route::get('/submit-call-response', [ZiwoDetailController::class, 'submitCallResponse'])->name('get_token');
-        });
+       
         Route::group(['as' => 'location.', 'prefix' => 'location'], function () {
             Route::get('/', [LocationController::class, 'index'])->name('index');
             Route::post('/get-table-data', [LocationController::class, 'getTableData'])->name('table.data');

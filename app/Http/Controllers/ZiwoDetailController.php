@@ -12,6 +12,7 @@ use App\Models\CallLog;
 use App\Models\User;
 use App\Services\CallService;
 use Illuminate\Support\Facades\Auth;
+use App\Helper\CRM;
 
 class ZiwoDetailController extends Controller
 {
@@ -91,7 +92,8 @@ class ZiwoDetailController extends Controller
 
     public function getToken(ZiwoTokenRequest $request)
     {
-        $company = Auth::user();
+        $company = User::first();
+       
         $locationId = $request->get('location_id');
 
         // Handle location-based user creation if locationId exists
@@ -118,5 +120,16 @@ class ZiwoDetailController extends Controller
             'message' => 'Call processed successfully.',
             'data' => $result,
         ], 200);
+    }
+     public function deleteCallLogs(Request $request)
+    {
+        $days_to_delete = CRM::getDefault('call_logs_days');
+        if($days_to_delete > 0 )
+        {
+            $date_threshold = now()->subDays($days_to_delete);
+            CallLog::where('created_at', '<', $date_threshold)->delete();
+            return response()->json(['message' => 'Old call logs deleted successfully.']);
+        }
+        return response()->json(['message' => 'No logs deleted. Days to delete must be greater than zero.']);
     }
 }
