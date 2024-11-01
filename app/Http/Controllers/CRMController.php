@@ -23,12 +23,6 @@ class CRMController extends Controller
                 Auth::login($user);
                 $user_id = $user->id;
             }
-            else
-            {
-                $user = User::first();
-                Auth::login($user);
-                $user_id = $user->id;
-            }
             $code = \CRM::crm_token($code, '');
             $code = json_decode($code);
             $user_type = $code->userType ?? 'company';

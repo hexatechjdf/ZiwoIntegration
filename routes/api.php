@@ -9,6 +9,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ZiwoDetailController;
 use App\Http\Controllers\ZiwoWebhookController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('location-info', [HomeController::class, 'location_info'])->name('location.info');
 
 Route::get('/jobs', function () {
     //return \Artisan::call('schedule:run');

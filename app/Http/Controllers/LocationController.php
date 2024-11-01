@@ -118,7 +118,8 @@ class LocationController extends Controller
         }
 
         // Get the token from the service layer
-        $tokenResponse = $this->ziwoService->getToken($company->id, $locationId);
+        $forceChange = $request->forceChange ??false;
+        $tokenResponse = $this->ziwoService->getToken($company->id, $locationId , $forceChange);
 
         if ($tokenResponse) {
             return $tokenResponse; // Return token as JSON response

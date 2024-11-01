@@ -21,7 +21,8 @@ class ConversationHelper
                         "from" =>  $payload['from_phone'],
                         "status" =>  "completed"
                     ];
-        $file = 'ddd';       
+        $accountName = CRM::getDefault('ziwo_account_name', 'asnanimedia');
+        $file = "https://".$accountName."-api.aswat.co/surveillance/recordings/" . $payload['attachment'];
         $conversation_provider_id = CRM::getDefault('crm_conversation_provider_id');
         $payload1 =
                         [

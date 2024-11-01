@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Helper\ConversationHelper;
 use App\Helper\ContactHelper;
 use App\Models\CallLog;
+use App\Models\LocationPhone;
 
 class CallService
 {
@@ -44,12 +45,24 @@ class CallService
             ];
 
 
-
-            // Step 4: Handle missed call tagging if necessary
-            if ($payload['call_status'] === 'missed' && strtolower($payload['direction']) == 'inbound') {
-                $this->contactHelper->addMissedCallTag($contactId , $company);
-            } else if (strtolower($payload['direction']) == 'outbound') {
-                $this->conversationHelper->recordCall($callData , $company);
+            $locationPhones = new LocationPhone();
+            $locationPhones->location_id = $payload['location_id'];
+            $locationPhones->phone = $payload['from_phone'];
+            $locationPhones->save();
+            $fromWebhook = $payload['from_webhook'] ?? false;
+            if($fromWebhook)
+            {
+                // Step 4: Handle missed call tagging if necessary
+                if ($payload['call_status'] === 'missed' && strtolower($payload['direction']) == 'inbound') {
+                    $this->contactHelper->addMissedCallTag($contactId , $company);
+                }
+                else if (strtolower($payload['direction']) == 'outbound') {
+                    $this->conversationHelper->recordCall($callData , $company);
+                }
+            }
+            else
+            {
+                $this->conversationHelper->recordCall($callData, $company);
             }
             $call_logs = CallLog::where('call_id', $payload['call_id'])->first();
             if (!$call_logs) {

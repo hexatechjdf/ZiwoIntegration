@@ -19,7 +19,7 @@ class ZiwoTokenResource extends JsonResource
         return [
             'endpoint' => $this->endpoint, // Assuming this is stored in your credentials
             'token' => $this->token,
-            'accountName'=>$this->accountName??'asnanimedia',
+            'accountName'=>$this->ziwo_account_name??'asnanimedia',
             'company_id' => $crmAuth->company_id??'',
             'location_id' => $crmAuth->location_id?? '', // This will be null if not applicable
            // 'company_access_token' => $crmAuth->access_token??'', // This will be null if not applicable
