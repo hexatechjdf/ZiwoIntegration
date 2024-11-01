@@ -63,7 +63,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
     Route::group(['as' => 'admin.', 'prefix' => 'admin'], function () {
         Route::any('dashboard', [AdminController::class, 'index'])->name('dashboard');
-       
+        Route::get('/', [ZiwoDetailController::class, 'index'])->name('ziwo.index');
+        Route::post('/store', [ZiwoDetailController::class, 'store'])->name('ziwo.save');
+
 
        
         Route::group(['as' => 'location.', 'prefix' => 'location'], function () {

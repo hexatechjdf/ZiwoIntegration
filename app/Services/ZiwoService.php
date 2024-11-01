@@ -11,12 +11,12 @@ class ZiwoService
 {
     protected $cacheTTL = 3600; // Cache time-to-live in seconds
 
-    public function getToken($companyId, $locationId = null)
+    public function getToken($companyId, $locationId = null, $forceChange = false)
     {
         $cacheKey = $this->getCacheKey($locationId);
 
         // Check cache first
-        if (Cache::has($cacheKey)) {
+        if (Cache::has($cacheKey) && !$forceChange ) {
             $credentials = $this->getCredentials($locationId);
             if ($credentials) {
                 $credentials->setAttribute('token', Cache::get($cacheKey));
@@ -43,7 +43,7 @@ class ZiwoService
             return null; // No credentials found
         }
 
-        $response = Http::asForm()->post($credentials->endpoint, [
+        $response = Http::asForm()->post($credentials->endpoint.'/auth/login', [
             'username' => $credentials->username,
             'password' => $credentials->password,
             'remember' => true,

@@ -49,12 +49,17 @@ class ZiwoDetailController extends Controller
      */
     public function store(Request $request)
     {
-        $ziwo = new ZiwoDetail();
-        $ziwo->username = $request->username;
-        $ziwo->password = $request->password;
-        $ziwo->endpoint = $request->endpoint;
-        $ziwo->save();
-        return response()->json(['success' => true, 'message' => 'Data saved successfully']);
+        $ziwo_details  = ZiwoDetail::where('id',$request->id)->first();
+        if(!$ziwo_details)
+        {
+            $ziwo_details = new ZiwoDetail();
+        }
+        $ziwo_details->username = $request->username;
+        $ziwo_details->password = $request->password;
+        $ziwo_details->ziwo_account_name = $request->ziwo_account_name;
+        $ziwo_details->endpoint = $request->endpoint;
+        $ziwo_details->save();
+         return response()->json(['success' => true, 'message' => 'Data saved successfully']);
         
     }
 

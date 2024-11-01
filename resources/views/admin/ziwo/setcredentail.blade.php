@@ -8,12 +8,19 @@
 
             <div class="col-md-12" id="ziwoFormContainer" style="">
                 <form id="ziwoForm">
+                                        <input type="hidden" name="id" value="{{ $ziwo_details->id ?? 0 }}">
+
                     <div class="modal-body">
                         @csrf
                         <div class="form-group">
                             <label for="email"> UserName</label>
                             <input type="text" class="form-control " value="{{ $ziwo_details->username ?? '' }}"
                                 id="username" name="username" aria-describedby="username" required>
+                        </div>
+                         <div class="form-group">
+                            <label for="ziwo_account_name"> Ziwo Account Name</label>
+                            <input type="text" class="form-control " value="{{ $ziwo_details->ziwo_account_name ?? '' }}"
+                                id="ziwo_account_name" name="ziwo_account_name" aria-describedby="ziwo_account_name" required>
                         </div>
                         <div class="form-group">
                             <label for="password"> Password</label>

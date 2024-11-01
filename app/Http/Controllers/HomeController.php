@@ -36,9 +36,9 @@ class HomeController extends Controller
     }
     public function location_info(Request $request)
     {
-        $user = Auth::user();
-        $locations = User::where('role',User::ROLE_LOCATION)->whereNotNull('location_id')->pluck(['location_id','integration_status']);
-        return response()->json(['status' => true, 'message' => 'location information.','data' => $locations], 200);
+        //$user = Auth::user();
+        $locations = User::where('role',User::ROLE_LOCATION)->whereNotNull('location_id')->pluck('integration_status','location_id')->toArray();
+        return response()->json( $locations, 200);
     }
     public function addLocation(Request $request)
     {
