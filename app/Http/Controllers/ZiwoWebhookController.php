@@ -3,18 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Helper\CRM;
-use App\Helper\Dropshipzone;
+use App\Jobs\SubmitCallResponseJob;
 use App\Models\CallLog;
 use App\Models\LocationPhone;
-use App\Models\Product;
 use App\Models\User;
-use App\Models\WebhookLog;
-use App\Services\CallService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use App\Helper\CRM;
-use App\Models\LocationPhone;
 use App\Services\CallService;
+use Carbon\Carbon;
 
 class ZiwoWebhookController extends Controller
 {
@@ -48,6 +43,13 @@ class ZiwoWebhookController extends Controller
             {
                 $defaultLocationId = CRM::getDefault('agency_main_location','');
             }
+            $callStatus = [
+                "CALL_REJECTED" => 'failed',
+                "ORIGINATOR_CANCEL" =>  "canceled",
+                "NORMAL_CLEARING" =>  "completed"
+            ];
+            $currentPayloadCallStatus = $payload['hangupCause'] ?? 'NORMAL_CLEARING';
+            
             $callData = [
                 'location_id' => $defaultLocationId,
                 'call_id' => $payload['callID'],
@@ -55,7 +57,7 @@ class ZiwoWebhookController extends Controller
                 'user_name' => $payload['user_name'] ?? 'Test Lead',
                 'user_email' => $payload['user_email'] ?? 'test@gmail.com',
                 'call_duration' => $payload['duration'],
-                'call_status' => $payload['call_status'],
+                'call_status' =>  $callStatus[$currentPayloadCallStatus] ?? "completed",
                 'call_direction' => $payload['direction'] ?? 'outbound',
                 'attachment' => $payload['recordingFile'] ?? null,
                 'from_phone' => $from_number,
@@ -64,8 +66,7 @@ class ZiwoWebhookController extends Controller
                 'conversation_id' => '',
                 'from_webhook' => true
             ];
-            $result = $this->callService->handleCall($callData, $company);
-        
+            SubmitCallResponseJob::dispatch($callData, $company)->delay(Carbon::now()->addMinutes(10));
         }
         \Log::info("Webhook--> " . json_encode($request->all()));
     }

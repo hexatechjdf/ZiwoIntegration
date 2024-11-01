@@ -9,6 +9,7 @@ use App\Http\Requests\ZiwoTokenRequest;
 use App\Services\ZiwoService;
 use App\Repositories\UserRepository;
 use App\Http\Requests\CallRequest;
+use App\Jobs\SubmitCallResponseJob;
 use App\Models\CallLog;
 use App\Models\User;
 use App\Services\CallService;
@@ -118,12 +119,9 @@ class ZiwoDetailController extends Controller
 
     public function submitCallResponse(Request $request)
     {
-        // Call service to process the payload
-        $company = Auth::user() ?? User::first();
-        $result = $this->callService->handleCall($request->all(), $company);
+        SubmitCallResponseJob::dispatch($request->all(),null);
         return response()->json([
             'message' => 'Call processed successfully.',
-            'data' => $result,
         ], 200);
     }
      public function deleteCallLogs(Request $request)

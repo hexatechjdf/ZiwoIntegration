@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Helper\CRM;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class CrmAuths extends Model
 {
@@ -16,6 +17,7 @@ class CrmAuths extends Model
         $is_refresh = false;
         try {
                 list($is_refresh, $token) = CRM::getRefreshToken($this->user_id, $this->refresh_token, true);
+                Log::info("Token refreshed successfully. New token:". $token);
         } catch (\Exception $e) {
             return 500;
         }

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\ProcessRefreshToken;
 use App\Jobs\UserConnectionLibraryJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -13,13 +14,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command('queue:work', [
-            //'--max-time' => 300,
-            '--queue'=>'default',
-            '--timeout'=>550,
-        ])->withoutOverlapping();
-        $schedule->job(new UserConnectionLibraryJob())->daily();
+        $schedule->command('queue:work --queue="' . env('JOB_QUEUE_TYPE', 'default') . '" --sleep=1')
+        ->withoutOverlapping();
+        $schedule->job(new ProcessRefreshToken())->everyFiveMinutes();
     }
 
     /**

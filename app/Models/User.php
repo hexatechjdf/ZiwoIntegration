@@ -53,6 +53,6 @@ class User extends Authenticatable
     }
     public function companyCrmAuth()
     {
-        return $this->hasOne(CrmAuths::class, 'id','user_id')->where('user_type','Company');
+        return $this->hasOne(CrmAuths::class,'user_id')->where('user_type','Company');
     }
 }
