@@ -64,6 +64,7 @@ class CallService
             {
                 $this->conversationHelper->recordCall($callData, $company);
             }
+            
             $call_logs = CallLog::where('call_id', $payload['call_id'])->first();
             if (!$call_logs) {
                 $call_logs = new CallLog();

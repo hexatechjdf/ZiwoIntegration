@@ -8,11 +8,16 @@
             max-width: 300px !important;
         }
 
+        ziwo-bottom-bar {
+            display: none;
+        }
+
         ziwo-bottom-bar .bottom-bar {
             display: flex;
             align-content: center;
             justify-content: center;
             align-items: center;
+
         }
     </style>
 </head>
@@ -41,7 +46,7 @@
         if (!source) {
             source = window.parent;
         }
-        source.postMessage(data);
+        source.postMessage(data, '*');
     }
     function generateNote(call) {
         function htm(det) {
@@ -53,9 +58,9 @@
         noteBody += htm("Direction : " + call.direction);
         return noteBody;
     }
-    function sendCallToBackend(call) {
-        if (call) {
-            let cause = call.cause ?? "";
+    function sendCallToBackend(call, lcause = "") {
+        if (call && call.callId) {
+            let cause = call.cause ?? lcause;
             let status = callStatus[cause] ?? "completed";
             let inBound = call.direction == 'inbound';
             let callerNumber = inBound ? call.origin : call.participants[0];
@@ -64,7 +69,7 @@
             let noteBody = generateNote(call);
             if (phone != '') {
                 let callPayload = {
-                    call_id: callDetail.callId,
+                    call_id: call.callId,
                     location_id: locationId,
                     contact_id: contactId,
                     contact_phone: phone,
@@ -92,8 +97,12 @@
     function outBoundCall(phone) {
         try {
             ZIWO.calls.startCall(phone);
-        } catch (error) {
+            sendPostMessage({
+                type: "outgoing_call",
+            });
 
+        } catch (error) {
+            sendPostMessage({ type: "no_phone" });
         }
     }
 
@@ -110,13 +119,14 @@
             }
 
             if (detail.type == "hangup") {
-
                 if (["NORMAL_CLEARING", "CALL_REJECTED"].includes(detail.cause)) {
-                    sendCallToBackend(detail.call ?? null);
+                    sendCallToBackend(detail.call ?? null, detail.cause);
                 }
-                sendPostMessage({
-                    type: "call_end",
-                });
+                setTimeout(function () {
+                    sendPostMessage({
+                        type: "call_end",
+                    });
+                }, 12500);
 
             }
             console.log('Triggered by any call event', e.detail)
@@ -145,28 +155,32 @@
                 }
                 else if (data.action == 'needData') {
                     contactId = data.contactId ?? "";
-
-                    getContact(contactId, isConversation).then(x => {
+                    getContact(contactId).then(x => {
                         data.type = data.action;
-                        sendPostMessage({ ...data, detail: x }, e.source)
+
+                        sendPostMessage({ ...data, detail: x });
+                    }).catch(p => {
+                        sendPostMessage({ ...data, detail: null });
                     })
                 } else if (data.action == 'userInfo') {
                     currentUser = data.user;
                     locationId = data.locationId;
-                } else if (data.action == 'locationInfo') {
-                    locationId = data.locationId;
                     connectZiwo(locationId).then(data => {
                         proceedAuth(data);
                     });
+                } else if (data.action == 'locationInfo') {
+                    locationId = data.locationId;
                 } else if (data.action == 'dailer') {
                     openDialer();
 
                 }
+                else if (data.action == 'resizer') {
+                    handleRemover();
+                }
             }
         })
-        connectZiwo(locationId).then(data => {
-            proceedAuth(data);
-        });
+
+        sendPostMessage({ type: "REQUEST_LOCATION_ID" });
     }
     function openDialer() {
         waitElement('#tourMobPhone', 2000).then(x => {
@@ -185,6 +199,8 @@
                 if (x.contact) {
                     resolve(x.contact);
                 }
+            }).catch(p => {
+                reject(p);
             })
         })
     }
@@ -217,43 +233,92 @@
                             resolve(x);
                         });
                     }
+                }).catch(p => {
+                    reject(p);
                 })
             }
         })
     }
     let apiCallCounter = 0;
-    function CRMCall(url, method = "GET", data = "") {
-        var myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer " + auth.location_token);
-        myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("version", "2021-07-28");
-        var requestOptions = {
-            method: method,
-            headers: myHeaders,
-            redirect: "follow",
-        };
-        if (typeof data == "object") {
-            data = JSON.stringify(data);
-        }
-        if (data != "") {
-            requestOptions["body"] = data;
-        }
+
+    function crmAuthCheck() {
+
         return new Promise((resolve, reject) => {
-            try {
-
-                let waitTime = apiCallCounter % 30 == 0 ? 500 : 0;
-                setTimeout(function () {
-                    fetch("https://services.leadconnectorhq.com/" + url, requestOptions)
-                        .then((response) => response.json())
-                        .then((result) => {
-                            resolve(result);
-                        })
-                        .catch((error) => reject(error));
-                }, waitTime);
-
-            } catch (e) {
-                reject(e);
+            if (auth.location_token) {
+                resolve();
+            } else {
+                // waitForResponse('get_token', {
+                // }).then(data => {
+                //     auth.location_token = data.token;
+                //     resolve(x);
+                // })
+                reject();
             }
+        })
+
+    }
+    function waitForResponse(action, data) {
+        return new Promise((resolve, reject) => {
+            let requestId = crypto.randomUUID();
+            let eventLisener = function (e) {
+                let data = e.data;
+                if (data.requestId == requestId && data.type == action) {
+                    window.removeEventListener('message', eventLisener);
+                    resolve(data);
+                }
+            };
+            window.addEventListener('message', eventLisener);
+            sendtoCallerIframe(action, { ...data, requestId });
+        });
+    }
+    function CRMCall(url, method = "GET", data = "", retries = 1) {
+        return new Promise((resolve, reject) => {
+            if (retries == 3) {
+                reject();
+                return;
+            }
+            crmAuthCheck().then(p => {
+                var myHeaders = new Headers();
+                myHeaders.append("Authorization", "Bearer " + auth.location_token);
+                myHeaders.append("Content-Type", "application/json");
+                myHeaders.append("version", "2021-07-28");
+                var requestOptions = {
+                    method: method,
+                    headers: myHeaders,
+                    redirect: "follow",
+                };
+                if (typeof data == "object") {
+                    data = JSON.stringify(data);
+                }
+                if (data != "") {
+                    requestOptions["body"] = data;
+                }
+
+                try {
+
+                    let waitTime = apiCallCounter % 30 == 0 ? 500 : 0;
+                    setTimeout(function () {
+                        fetch("https://services.leadconnectorhq.com/" + url, requestOptions)
+                            .then((response) => response.json())
+                            .then((result) => {
+                                resolve(result);
+                            })
+                            .catch((error) => reject(error));
+                    }, waitTime);
+
+                } catch (e) {
+                    reject(e);
+                }
+
+            }).catch(x => {
+                connectZiwo(locationId).then(p => {
+                    if (p.location_token) {
+                        CRMCall(url, method, data, retries + 1).then(p => {
+                            resolve(p);
+                        })
+                    }
+                })
+            })
         });
     }
 
@@ -356,8 +421,18 @@
                     let data = x.data ?? {};
                     auth = data;
                     resolve(data);
+                } else if (x.error) {
+                    notConnected();
                 }
+            }).catch(error => {
+                notConnected()
             })
+        })
+    }
+
+    function notConnected() {
+        sendPostMessage({
+            type: 'not_connected',
         })
     }
 
@@ -373,9 +448,9 @@
     }
     initZIWO();
 
-
+    window.addEventListener('load', handleRemover);
 
 </script>
-<iframe src="https://webhook.site/f72eeca3-834b-4bc5-bdde-f7eb89fcc8cb"></iframe>
+
 
 </HTML>

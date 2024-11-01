@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class ConversationHelper
 {
-    // /callHistory/<CallID/ID>/recording
+  
     public function recordCall($payload , $company) {
         $externalCrmcall = null;
         $currentDateTime = Carbon::now();
@@ -21,8 +21,9 @@ class ConversationHelper
                         "from" =>  $payload['from_phone'],
                         "status" =>  "completed"
                     ];
-        $accountName = CRM::getDefault('ziwo_account_name', 'asnanimedia');
+         $accountName = CRM::getDefault('ziwo_account_name', 'asnanimedia');
         $file = "https://".$accountName."-api.aswat.co/surveillance/recordings/" . $payload['attachment'];
+               
         $conversation_provider_id = CRM::getDefault('crm_conversation_provider_id');
         $payload1 =
                         [
@@ -107,7 +108,7 @@ class ConversationHelper
 
             // Step 3: If no conversation exists in HL, create a new conversation
             $newConversation = $this->createConversationInHL($company, $location_id, $contact_id);
-            dd($newConversation);
+            
             // Save the newly created conversation in both internal DB and HL
             return DB::transaction(function () use ($newConversation, $contact_id) {
                 return Conversation::create([
